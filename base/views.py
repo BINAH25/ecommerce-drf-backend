@@ -38,3 +38,9 @@ def getProduct(request,pk=None):
     product = Product.objects.get(_id=pk)
     serializer = ProductSerializer(product,many=False)     
     return Response(serializer.data)
+
+@api_view(['GET'])
+def getUser(request):
+    user = request.user
+    serializer = UserSerializer(user,many=False)
+    return Response(serializer.data)
