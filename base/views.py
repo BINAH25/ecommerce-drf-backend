@@ -4,6 +4,7 @@ from rest_framework.decorators import api_view,permission_classes
 from rest_framework.response import Response
 from .seraliazers import *
 from .models import *
+from rest_framework import status
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth.models import User
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -63,13 +64,21 @@ def registerUser(request):
     userName = data['username']
     email = data['email']
     password = data['password']
-    
-    user = User.objects.create(
-        first_name=firstName,
-        username=email,
-        email=email,
-        password = make_password(password)
-        )
-    
-    serializer = UserSerializerWithToken(user, many=False)
-    return Response(serializer.data)
+    email2 = User.objects.filter(email=email)
+    if email2:
+        mgs = {'error': 'email already exist'}
+        return Response(mgs)
+    try:
+        
+        user = User.objects.create(
+            first_name=firstName,
+            username=email,
+            email=email,
+            password = make_password(password)
+            )
+        
+        serializer = UserSerializerWithToken(user, many=False)
+        return Response(serializer.data)
+    except:
+        message = {'details':'user with this email already exist'}
+        return Response(message, status=status.HTTP_400_BAD_REQUEST)
